@@ -1,5 +1,6 @@
 # sql-bootcamp-week08
 Optimizar un sistema lento
+
 Fase 2 — Las 6 queries lentas 
 Query 1: búsqueda de texto: 0.109 sec / 0.000 sec
 Query 2: JOIN con filtro por categoría: 0.000 sec / 0.000 sec
@@ -9,6 +10,13 @@ Query 5: filtro compuesto: 0.016 sec / 0.000 sec
 Query 6: top clientes con subconsultas (antipatrón): Muestra el estado Running... durante varios segundos (o incluso minutos) o se interrumpe si excede el timeout del cliente.
 
 Fase 3 — Diagnóstico con EXPLAIN
+Query           Problema Metrica(EXPLAIN)                                               Solución Metrica(EXPLAIN) 
+Q1          Type: ALL, Key: Null, Row: ~150,000                                  Type: fulltext, Key: ft_products_name, Row: ~1 - 10
+Q2    Type: ALL (en ambas tablas), Key: Null, Row: ~150,000 $\times$ 1,000     Type: feq_ref / ref, Key: idx_products_category_id, Row:                                                                                  ~1 por fila
+Q3    Type: ALL, Key: NULL (por usar DATE(sale_date)), Row: ~200,000         Type: const, Key: idx_sales_date, Row: Solo el rango filtrado
+Q4       Type: ALL, Key: Null, Row: ~20,000                                       Type: const, Key: idx_customers_email, Row: 1
+Q5   Type: ALL, Key: Null, Row: ~150,000                        Type: ref, Key: idx_products_stock_active, Row: Solo filas que coinciden
+Q6 Type: DEPENDENT SUBQUERY, Key: ($2 \times 20,000$ subconsultas,       Type: ref (en sales) / ALL (1 sola vez en customers), Key:       Row: NULL    ~200,000 por cada cliente                                    idx_sales_customer, Row: ~10 - 15 por cliente
 
 Query	Problema
 Q1	LIKE '%xxx%' con % al inicio: ningún índice B-tree puede ayudar. Necesita FULLTEXT INDEX.

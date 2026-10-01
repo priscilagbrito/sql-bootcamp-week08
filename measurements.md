@@ -18,6 +18,13 @@ Q4       Type: ALL, Key: Null, Row: ~20,000                                     
 Q5   Type: ALL, Key: Null, Row: ~150,000                        Type: ref, Key: idx_products_stock_active, Row: Solo filas que coinciden
 Q6 Type: DEPENDENT SUBQUERY, Key: ($2 \times 20,000$ subconsultas,       Type: ref (en sales) / ALL (1 sola vez en customers), Key:       Row: NULL    ~200,000 por cada cliente                                    idx_sales_customer, Row: ~10 - 15 por cliente
 
+Resumen de las transformaciones clave en EXPLAIN
+1. type (Tipo de acceso): Evolucionó desde el peor escenario (ALL = escaneo completo de la tabla) hacia los niveles más eficientes del motor SQL (const, eq_ref, ref, range y fulltext).
+
+2. key (Índice utilizado): Pasó de ser NULL (sin uso de índices) a utilizar las claves B-Tree y FULLTEXT recién creadas.
+
+3. rows (Filas examinadas): Se redujo dramáticamente, pasando de evaluar cientos de miles de filas por consulta a examinar únicamente las filas necesarias (en muchos casos, solo 1 fila).
+
 Query	Problema
 Q1	LIKE '%xxx%' con % al inicio: ningún índice B-tree puede ayudar. Necesita FULLTEXT INDEX.
 Q2	categories.name y products.category_id sin índice → full scan + nested loop
